@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Visa Credit/Debit -->
+    <add key="A0000000031010" value="CreditDebit"/>
+    <add key="A000000003101001" value="Credit"/>
+    <add key="A000000003101008" value="Credit"/>
+    <add key="A000000003101002" value="Debit"/>
+    <add key="A000000003101009" value="Debit"/>
+    <!-- Visa Credit/Debit -->
+    <!--<add key="A000000003101002" value="CreditDebit"/>-->
+    <!-- Visa Electron -->
+    <add key="A0000000032010" value="CreditDebit"/>
+    <!-- VISA Interlink -->
+    <add key="A0000000033010" value="CreditDebit"/>
+    <!-- VISA Plus -->
+    <add key="A0000000038010" value="Debit"/>
+    <!-- Visa US Common Debit -->
+    <add key="A0000000980840" value="Debit"/>
+    <!-- Mastercard Credit or Debit -->
+    <add key="A0000000041010" value="CreditDebit"/>
+    <add key="A00000000410101213" value="Credit"/>
+    <add key="A00000000410101215" value="Debit"/>
+    <!-- MasterCard Maestro -->
+    <add key="A0000000043060" value="Debit"/>
+    <!-- Cirrus
+    <add key="A0000000046000" value="Debit"/> -->
+    <!-- U.S. Maestro AID -->
+    <add key="A0000000042203" value="CreditDebit"/>
+    <!-- American Express -->
+    <add key="A0000000250000" value="CreditDebit"/>
+    <!-- American Express -->
+    <add key="A0000000250104" value="Credit"/>
+    <!-- ExpressPay -->
+    <add key="A0000000250107" value="Credit"/>
+    <!-- American Express -->
+    <add key="A0000000250108" value="Credit"/>
+    <!-- Discover DPAS -->
+    <add key="A0000001523010" value="Credit"/>
+    <!-- Discover Common Debit -->
+    <add key="A0000001524010" value="Debit"/>
+    <!-- Discover ZIP -->
+    <add key="A0000003241010" value="Credit"/>
+    <!-- MasterCard Issuer Defined -->
+    <add key="A0000000049999" value="Credit"/>
+    <!-- SecureCode Auth EMV-CAP -->
+    <add key="A0000000048002" value="Credit"/>
+    <!-- VISA Specific -->
+    <add key="A0000000034010" value="Credit"/>
+    <!-- VISA Specific -->
+    <add key="A0000000035010" value="Credit"/>
+    <!-- VISA -->
+    <add key="A0000000032020" value="Credit"/>
+    <!-- Mastercard Specific -->
+    <add key="A0000000044010" value="Credit"/>
+    <!-- MasterCard Specific -->
+    <add key="A0000000042010" value="Credit"/>
+    <!-- MasterCard Specific -->
+    <add key="A0000000043010" value="Credit"/>
+    <!-- MasterCard Specific -->
+    <add key="A0000000045010" value="Credit"/>
+    <!-- American Express -->
+    <add key="A000000025010" value="Credit"/>
+    <!-- American Express -->
+    <add key="A00000002501" value="Credit"/>
+    <!-- Discover -->
+    <add key="A0000000152010" value="Credit"/>
+    <!-- INTERAC -->
+    <add key="A0000000277010" value="Credit"/>
+</resources>

@@ -5,8 +5,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.gt.alimert.emvcardreader.lib.model.Application;
+
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author AliMertOzdemir
@@ -24,6 +28,7 @@ public final class TlvUtil {
     //https://salmg.net/2017/09/12/intro-to-analyze-nfc-contactless-cards/
     //http://www.europeancardpaymentcooperation.eu/wp-content/uploads/2019/06/CPACE-HCE_V1.0.pdf
     //https://salmg.net/2017/09/12/intro-to-analyze-nfc-contactless-cards/ (Multi Application Card - Combi)
+    //https://b2ps.com/fileadmin/pdf/cardsetdocs/Evertec_ATH-Prima_Test_Card_Set_Summary_v1.pdf
 
     private static final String TAG = TlvUtil.class.getName();
 
@@ -93,6 +98,58 @@ public final class TlvUtil {
         }
 
         return result;
+    }
+
+    public static List<Application> getApplicationList(byte[] data) {
+
+        List<Application> appList = new ArrayList<>();
+
+        data = TlvUtil.getTlvByTag(data, TlvTagConstant.FCI_TLV_TAG);
+
+        for (byte[] app : getMultipleTlv(data, TlvTagConstant.APP_TLV_TAG)) {
+            Application application = new Application();
+
+            byte[] aid = getTlvByTag(app, TlvTagConstant.AID_TLV_TAG);
+            if(aid != null)
+                application.setAid(aid);
+
+            byte[] appLabel = getTlvByTag(app, TlvTagConstant.APPLICATION_LABEL_TLV_TAG);
+            if(appLabel != null)
+                application.setAppLabel(HexUtil.bytesToHexadecimal(appLabel));
+
+            byte[] appPriorityInd = getTlvByTag(app, TlvTagConstant.APP_PRIORITY_IND_TLV_TAG);
+            if(appPriorityInd != null) {
+                String appPriorityIndStr = HexUtil.bytesToHexadecimal(appPriorityInd);
+                if(appPriorityIndStr != null)
+                    application.setPriority(Integer.parseInt(appPriorityIndStr));
+            }
+
+
+            appList.add(application);
+        }
+
+        return appList;
+    }
+
+    private static List<byte[]> getMultipleTlv(byte[] data, byte[] tlvTag) {
+
+        List<byte[]> appList = new ArrayList<>();
+
+        int startIndex = 0;
+        int endIndex = data.length;
+
+        while (endIndex > startIndex) {
+            data = Arrays.copyOfRange(data, startIndex, data.length);
+            byte[] tlvData = getTlvByTag(data, tlvTag);
+            if(tlvData != null) {
+                appList.add(tlvData);
+                startIndex += tlvData.length + 1 + tlvTag.length;
+            } else {
+                return appList;
+            }
+        }
+
+        return appList;
     }
 
     // List of fields that should be send inside Bit 55 on request

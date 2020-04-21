@@ -5,6 +5,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
 import android.nfc.tech.IsoDep;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import com.gt.alimert.emvcardreader.lib.enums.CardType;
 import com.gt.alimert.emvcardreader.lib.exception.CommandException;
 import com.gt.alimert.emvcardreader.lib.model.AflObject;
 import com.gt.alimert.emvcardreader.lib.model.ApduResponse;
+import com.gt.alimert.emvcardreader.lib.model.Application;
 import com.gt.alimert.emvcardreader.lib.model.Card;
 import com.gt.alimert.emvcardreader.lib.model.LogMessage;
 import com.gt.alimert.emvcardreader.lib.util.AflUtil;
@@ -51,7 +53,9 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                     NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
 
     private static final int SW_NO_ERROR = 0x9000;
-    private int READ_TIMEOUT = 30000;
+    private int READ_TIMEOUT = 3000;
+    private int CONNECT_TIMEOUT = 30000;
+    private CountDownTimer mTimer;
     private List<LogMessage> mLogMessages;
     private Card mCard;
 
@@ -75,10 +79,11 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         } else {
             mNfcAdapter.enableReaderMode(mContext, this, READER_FLAGS, null);
         }
+
     }
 
     public void setTimeout(int timeoutMillis) {
-        READ_TIMEOUT = timeoutMillis;
+        CONNECT_TIMEOUT = timeoutMillis;
     }
 
     @Override
@@ -105,10 +110,24 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 byte[] result = mIsoDep.transceive(command);
                 byte[] responseData = evaluateResult( "SELECT PPSE", command, result);
 
-                byte[] aid = TlvUtil.getTlvByTag(responseData, TlvTagConstant.AID_TLV_TAG);
+                //byte[] aid = TlvUtil.getTlvByTag(responseData, TlvTagConstant.AID_TLV_TAG);
+
+                // *** FIND MULTIPLE APPLICATIONS ***//
+                List<Application> appList = TlvUtil.getApplicationList(responseData);
+                int index = 0;
+                for (Application application : appList) {
+                    index++;
+                    Log.d(TAG, "AID (" + index + ")-> " + HexUtil.bytesToHexadecimal(application.getAid()));
+                    Log.d(TAG, "APP LABEL (" + index + ")-> " + application.getAppLabel());
+                    Log.d(TAG, "APP PRIORITY (" + index + ")-> " + application.getPriority());
+                }
+
+                byte[] aid = appList.get(0).getAid();
+
                 if(!AidUtil.isApprovedAID(aid)) {
                     throw new CommandException("AID NOT SUPPORTED -> " + HexUtil.bytesToHexadecimal(aid));
                 }
+
                 command = ApduUtil.selectApplication(aid);
                 result = mIsoDep.transceive(command);
                 responseData = evaluateResult("SELECT APPLICATION", command, result);
@@ -123,18 +142,19 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 byte[] tag77 = TlvUtil.getTlvByTag(responseData, TlvTagConstant.GPO_RMT2_TLV_TAG);
 
                 byte[] aflData = null;
-                if(tag80 != null) {
-                    aflData = tag80;
-                    aflData = Arrays.copyOfRange(aflData, 2, aflData.length);
-                } else if(tag77 != null) {
+                if(tag77 != null) {
                     extractTrack2Data(tag77);
                     aflData = TlvUtil.getTlvByTag(responseData, TlvTagConstant.AFL_TLV_TAG);
+                } else if(tag80 != null) {
+                    aflData = tag80;
+                    aflData = Arrays.copyOfRange(aflData, 2, aflData.length);
                 }
 
                 if(aflData != null) {
                     Log.d(TAG, "AFL HEX DATA -> " + HexUtil.bytesToHexadecimal(aflData));
                     List<AflObject> aflDatas = AflUtil.getAflDataRecords(aflData);
-                    if(aflDatas != null && !aflDatas.isEmpty()) {
+                    if(aflDatas != null && !aflDatas.isEmpty() && aflDatas.size() < 10) {
+                        Log.d(TAG, "AFL DATA SIZE -> " + aflDatas.size());
                         for (AflObject aflObject : aflDatas) {
                             command = aflObject.getReadCommand();
                             result = mIsoDep.transceive(command);
@@ -148,7 +168,9 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
 
                 if(mCard.getTrack2() != null) {
                     CardType cardType = AidUtil.getCardBrandByAID(aid);
-                    mCard.setCardBrand(cardType.getCardBrand());
+                    mCard.setCardType(cardType);
+                } else {
+                    throw new Exception("CALL YOUR BANK");
                 }
 
                 command = ApduUtil.getReadTlvData(TlvTagConstant.PIN_TRY_COUNTER_TLV_TAG);
@@ -168,7 +190,13 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
             } catch (IOException e) {
                 Log.d(TAG, "ISO DEP CONNECT ERROR -> " + e.getLocalizedMessage());
                 mResultListener.onCardReadFail("ISO DEP CONNECT ERROR -> " + e.getLocalizedMessage());
+            } catch (Exception e) {
+                Log.d(TAG, "CARD ERROR -> " + e.getLocalizedMessage());
+                mResultListener.onCardReadFail("CARD ERROR -> " + e.getLocalizedMessage());
             }
+            /*finally {
+                mNfcAdapter.disableReaderMode(mContext);
+            }*/
 
         } else {
             Log.d(TAG, "ISO DEP is null");
@@ -229,11 +257,6 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         result = mIsoDep.transceive(command);
         evaluateResult("VERIFY PIN", command, result);
 
-        /*byte[] pdol = HexUtil.hexadecimalToBytes("9F66049F02069F03069F1A0295055F2A029A039C019F3704");
-        byte[] extraPdol = GpoUtil.generatePdol(pdol);
-        command = ApduUtil.getProcessingOption(pdol);
-        result = mIsoDep.transceive(command);
-        evaluateResult("GET EXTRA PDOL", command, result);*/
     }
 
     private void returnMessage(String commandName, String request, String response, boolean isLastCommand) throws IOException {
@@ -256,6 +279,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         void onCardDetect();
         void onCardReadSuccess(Card card);
         void onCardReadFail(String error);
+        void onCardReadTimeout();
         void onCardMovedSoFast();
     }
 

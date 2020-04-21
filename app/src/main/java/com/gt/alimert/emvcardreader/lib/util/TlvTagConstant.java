@@ -58,9 +58,26 @@ public class TlvTagConstant {
     // - Emv Command(s) (First Bytes - Cla, Ins)
 
     // TLV Tag(s) (Constant(s))
+    public static final byte[] FCI_TLV_TAG = {
+            (byte) 0xBF,
+            (byte) 0x0C
+    }; //File Control Information (FCI) Issuer Discretionary Data
+
+    public static final byte[] APP_TLV_TAG = {
+            (byte) 0x61
+    }; // Application Template
+
     public static final byte[] AID_TLV_TAG = {
             (byte) 0x4F
     }; // AID (Application Identifier)
+
+    public static final byte[] APPLICATION_LABEL_TLV_TAG = {
+            (byte) 0x50
+    }; // Application Label
+
+    public static final byte[] APP_PRIORITY_IND_TLV_TAG = {
+            (byte) 0x87
+    }; // Application Priority Indicator
 
     public static final byte[] PDOL_TLV_TAG = {
             (byte) 0x9F,
@@ -144,10 +161,6 @@ public class TlvTagConstant {
             (byte) 0x80
     }; // PayPass, PayWave
     // - Log Format
-
-    public static final byte[] APPLICATION_LABEL_TLV_TAG = {
-            (byte) 0x50
-    }; // Application Label
 
     public static final byte[] APPLICATION_PAN_TLV_TAG = {
             (byte) 0x5A

@@ -28,13 +28,17 @@ public final class AppUtils {
     }
 
     public static AlertDialog showAlertDialog(Activity activity, String title, String message, String positiveBtnText, String negativeBtnText, boolean isCancelable, Dialog.OnClickListener listener)  {
-        return new AlertDialog.Builder(activity)
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(positiveBtnText, listener)
-                .setNegativeButton(negativeBtnText, listener)
-                .setCancelable(isCancelable)
-                .show();
+                .setCancelable(isCancelable);
+
+        if(negativeBtnText != null && !negativeBtnText.isEmpty())
+            alertDialog.setNegativeButton(negativeBtnText, listener);
+
+        return alertDialog.show();
+
     }
 
     public static Snackbar showSnackBar(View containerView, String message, String buttonText) {

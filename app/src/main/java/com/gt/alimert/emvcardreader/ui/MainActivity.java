@@ -2,7 +2,6 @@ package com.gt.alimert.emvcardreader.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -62,14 +61,21 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
     @Override
     public void onCardReadSuccess(Card card) {
         dismissProgressDialog();
-        showAlertDialog(card);
+        showCardDetailDialog(card);
     }
 
     @Override
     public void onCardReadFail(String error) {
         playBeep(BeepType.FAIL);
         dismissProgressDialog();
-        Log.d(TAG, "CARD READ FAILED ON UI -> " + error);
+        showAlertDialog("ERROR", error);
+    }
+
+    @Override
+    public void onCardReadTimeout() {
+        playBeep(BeepType.FAIL);
+        dismissProgressDialog();
+        AppUtils.showSnackBar(llContainer, "Timeout has been reached...", "OK");
     }
 
     @Override
@@ -108,12 +114,21 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
         runOnUiThread(() -> mProgressDialog.dismiss());
     }
 
-    private void showAlertDialog(Card card) {
+    private void showAlertDialog(String title, String message) {
+
+        runOnUiThread(() -> {
+            mAlertDialog = AppUtils.showAlertDialog(this, title, message, "OK", "SHOW APDU LOGS", false, (dialogInterface, button) -> {
+                mAlertDialog.dismiss();
+            });
+        });
+    }
+
+    private void showCardDetailDialog(Card card) {
 
         runOnUiThread(() -> {
             String title = "Card Detail";
             String message =
-                    "Card Brand : " + card.getCardBrand() + "\n" +
+                    "Card Brand : " + card.getCardType().getCardBrand() + "\n" +
                             "Card Pan : " + card.getPan() + "\n" +
                             "Card Expire Date : " + card.getExpireDate() + "\n" +
                             "Card Track2 Data : " + card.getTrack2() + "\n";
@@ -121,21 +136,18 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
             if(card.getEmvData() != null && !card.getEmvData().isEmpty())
                 message += "Card EmvData : " + card.getEmvData();
 
-            mAlertDialog = AppUtils.showAlertDialog(this, title, message, "OK", "SHOW APDU LOGS", false, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int button) {
-                    switch (button) {
-                        case BUTTON_POSITIVE:
-                        case BUTTON_NEUTRAL:
-                            mCtlessCardService.start();
-                            mAlertDialog.dismiss();
-                            break;
-                        case BUTTON_NEGATIVE:
-                            if(card.getLogMessages() != null && !card.getLogMessages().isEmpty())
-                                openApduLogDetail(new ArrayList<>(card.getLogMessages()));
-                            mAlertDialog.dismiss();
-                            break;
-                    }
+            mAlertDialog = AppUtils.showAlertDialog(this, title, message, "OK", "SHOW APDU LOGS", false, (dialogInterface, button) -> {
+                switch (button) {
+                    case BUTTON_POSITIVE:
+                    case BUTTON_NEUTRAL:
+                        mCtlessCardService.start();
+                        mAlertDialog.dismiss();
+                        break;
+                    case BUTTON_NEGATIVE:
+                        if(card.getLogMessages() != null && !card.getLogMessages().isEmpty())
+                            openApduLogDetail(new ArrayList<>(card.getLogMessages()));
+                        mAlertDialog.dismiss();
+                        break;
                 }
             });
         });

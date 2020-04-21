@@ -1,5 +1,7 @@
 package com.gt.alimert.emvcardreader.lib.model;
 
+import com.gt.alimert.emvcardreader.lib.enums.CardType;
+
 import java.util.List;
 
 /**
@@ -12,7 +14,7 @@ public class Card {
 
     private String pan;
     private String expireDate;
-    private String cardBrand;
+    private CardType cardType;
     private String track2;
     private String emvData;
     private List<LogMessage> logMessages;
@@ -33,12 +35,12 @@ public class Card {
         this.expireDate = expireDate;
     }
 
-    public String getCardBrand() {
-        return cardBrand;
+    public CardType getCardType() {
+        return cardType;
     }
 
-    public void setCardBrand(String cardBrand) {
-        this.cardBrand = cardBrand;
+    public void setCardType(CardType cardType) {
+        this.cardType = cardType;
     }
 
     public String getTrack2() {

@@ -79,18 +79,17 @@ public final class AidUtil {
     /*
         American Express
         RID: A000000025
-        PIX: 010402
-        AID (Application Identifier): A000000025010402
+        PIX: 0104
+        AID (Application Identifier): A0000000250104
     */
-    private static byte[] A000000025010402 = {
+    private static byte[] A0000000250104 = {
             (byte) 0xA0,
             (byte) 0x00,
             (byte) 0x00,
             (byte) 0x00,
             (byte) 0x25,
             (byte) 0x01,
-            (byte) 0x04,
-            (byte) 0x02
+            (byte) 0x04
     };
 
     /*
@@ -126,19 +125,22 @@ public final class AidUtil {
     };
 
     public static boolean isApprovedAID(byte[] aid) {
-        if(Arrays.equals(A0000000041010, aid))
+
+        byte[] shortAid = Arrays.copyOfRange(aid, 0, 7);
+
+        if(Arrays.equals(A0000000041010, shortAid))
             return true;
-        else if(Arrays.equals(A0000000043060, aid))
+        else if(Arrays.equals(A0000000043060, shortAid))
             return true;
-        else if(Arrays.equals(A0000000031010, aid))
+        else if(Arrays.equals(A0000000031010, shortAid))
             return true;
-        else if(Arrays.equals(A0000000032010, aid))
+        else if(Arrays.equals(A0000000032010, shortAid))
             return true;
-        else if(Arrays.equals(A000000025010402, aid))
+        else if(Arrays.equals(A0000000250104, shortAid))
             return true;
-        else if(Arrays.equals(A0000006723010, aid))
+        else if(Arrays.equals(A0000006723010, shortAid))
             return true;
-        else if(Arrays.equals(A0000006723020, aid))
+        else if(Arrays.equals(A0000006723020, shortAid))
             return true;
         else
             return false;
@@ -146,19 +148,22 @@ public final class AidUtil {
     }
 
     public static CardType getCardBrandByAID(byte[] aid) {
-        if(Arrays.equals(A0000000041010, aid))
+
+        byte[] shortAid = Arrays.copyOfRange(aid, 0, 7);
+
+        if(Arrays.equals(A0000000041010, shortAid))
             return CardType.MC;
-        else if(Arrays.equals(A0000000043060, aid))
+        else if(Arrays.equals(A0000000043060, shortAid))
             return CardType.MC;
-        else if(Arrays.equals(A0000000031010, aid))
+        else if(Arrays.equals(A0000000031010, shortAid))
             return CardType.VISA;
-        else if(Arrays.equals(A0000000032010, aid))
+        else if(Arrays.equals(A0000000032010, shortAid))
             return CardType.VISA;
-        else if(Arrays.equals(A000000025010402, aid))
+        else if(Arrays.equals(A0000000250104, shortAid))
             return CardType.AMEX;
-        else if(Arrays.equals(A0000006723010, aid))
+        else if(Arrays.equals(A0000006723010, shortAid))
             return CardType.TROY;
-        else if(Arrays.equals(A0000006723020, aid))
+        else if(Arrays.equals(A0000006723020, shortAid))
             return CardType.TROY;
         else
             return CardType.UNKNOWN;

@@ -9,6 +9,8 @@ import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.List;
+
 public final class AppUtils {
 
     private AppUtils() {
@@ -47,5 +49,18 @@ public final class AppUtils {
         snackbar.setDuration(2500);
         snackbar.show();
         return snackbar;
+    }
+
+    public static AlertDialog showSingleChoiceListDialog(Activity activity, String title, List<String> list, Dialog.OnClickListener listener) {
+        // setup the alert builder
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setCancelable(false);
+
+        CharSequence[] charSequences = list.toArray(new CharSequence[0]);
+        alertDialog.setItems(charSequences, listener);
+
+
+        return alertDialog.show();
     }
 }

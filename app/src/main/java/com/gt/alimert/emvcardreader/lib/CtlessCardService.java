@@ -57,6 +57,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
     private int CONNECT_TIMEOUT = 30000;
     private CountDownTimer mTimer;
     private List<LogMessage> mLogMessages;
+    private int mUserAppIndex = -1;
     private Card mCard;
 
     private CtlessCardService() {}
@@ -86,6 +87,10 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         CONNECT_TIMEOUT = timeoutMillis;
     }
 
+    public void setSelectedApplication(int index) {
+        this.mUserAppIndex = index;
+    }
+
     @Override
     public void onTagDiscovered(Tag tag) {
         mLogMessages = new ArrayList<>();
@@ -109,11 +114,11 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 byte[] command = ApduUtil.selectPpse();
                 byte[] result = mIsoDep.transceive(command);
                 byte[] responseData = evaluateResult( "SELECT PPSE", command, result);
-
-                //byte[] aid = TlvUtil.getTlvByTag(responseData, TlvTagConstant.AID_TLV_TAG);
+                byte[] aid;
 
                 // *** FIND MULTIPLE APPLICATIONS ***//
                 List<Application> appList = TlvUtil.getApplicationList(responseData);
+
                 int index = 0;
                 for (Application application : appList) {
                     index++;
@@ -122,7 +127,19 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                     Log.d(TAG, "APP PRIORITY (" + index + ")-> " + application.getPriority());
                 }
 
-                byte[] aid = appList.get(0).getAid();
+                if(appList.size() > 1) {
+
+                    if(mUserAppIndex != -1 && appList.size() > mUserAppIndex) {
+                        aid = appList.get(mUserAppIndex).getAid();
+                        mUserAppIndex = -1;
+                    } else {
+                        mResultListener.onCardSelectApplication(appList);
+                        return;
+                    }
+
+                } else {
+                    aid = appList.get(0).getAid();
+                }
 
                 if(!AidUtil.isApprovedAID(aid)) {
                     throw new CommandException("AID NOT SUPPORTED -> " + HexUtil.bytesToHexadecimal(aid));
@@ -281,6 +298,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         void onCardReadFail(String error);
         void onCardReadTimeout();
         void onCardMovedSoFast();
+        void onCardSelectApplication(List<Application> applications);
     }
 
 }

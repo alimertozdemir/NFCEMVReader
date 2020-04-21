@@ -14,11 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gt.alimert.emvcardreader.R;
 import com.gt.alimert.emvcardreader.lib.CtlessCardService;
 import com.gt.alimert.emvcardreader.lib.enums.BeepType;
+import com.gt.alimert.emvcardreader.lib.model.Application;
 import com.gt.alimert.emvcardreader.lib.model.Card;
 import com.gt.alimert.emvcardreader.lib.model.LogMessage;
 import com.gt.alimert.emvcardreader.ui.util.AppUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.DialogInterface.BUTTON_NEGATIVE;
 import static android.content.DialogInterface.BUTTON_NEUTRAL;
@@ -83,6 +85,13 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
         playBeep(BeepType.FAIL);
         dismissProgressDialog();
         AppUtils.showSnackBar(llContainer, "Please do not remove your card while reading...", "OK");
+    }
+
+    @Override
+    public void onCardSelectApplication(List<Application> applications) {
+        playBeep(BeepType.FAIL);
+        dismissProgressDialog();
+        showApplicationSelectionDialog(applications);
     }
 
     private void openApduLogDetail(ArrayList<LogMessage> logMessages) {
@@ -150,6 +159,19 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
                         break;
                 }
             });
+        });
+    }
+
+    private void showApplicationSelectionDialog(List<Application> applications) {
+
+        List<String> appNames = new ArrayList<>();
+        for (Application application : applications) {
+            appNames.add(application.getAppLabel());
+        }
+
+        runOnUiThread(() -> {
+            String title = "Select One of Your Cards";
+            mAlertDialog = AppUtils.showSingleChoiceListDialog(this, title, appNames, (dialogInterface, index) -> mCtlessCardService.setSelectedApplication(index));
         });
     }
 

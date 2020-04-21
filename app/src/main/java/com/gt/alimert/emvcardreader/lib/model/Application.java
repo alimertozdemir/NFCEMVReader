@@ -35,4 +35,5 @@ public class Application {
     public void setPriority(int priority) {
         this.priority = priority;
     }
+
 }

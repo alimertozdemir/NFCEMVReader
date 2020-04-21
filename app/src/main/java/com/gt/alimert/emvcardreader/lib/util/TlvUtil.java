@@ -115,7 +115,7 @@ public final class TlvUtil {
 
             byte[] appLabel = getTlvByTag(app, TlvTagConstant.APPLICATION_LABEL_TLV_TAG);
             if(appLabel != null)
-                application.setAppLabel(HexUtil.bytesToHexadecimal(appLabel));
+                application.setAppLabel(HexUtil.bytesToAscii(appLabel));
 
             byte[] appPriorityInd = getTlvByTag(app, TlvTagConstant.APP_PRIORITY_IND_TLV_TAG);
             if(appPriorityInd != null) {
@@ -123,7 +123,6 @@ public final class TlvUtil {
                 if(appPriorityIndStr != null)
                     application.setPriority(Integer.parseInt(appPriorityIndStr));
             }
-
 
             appList.add(application);
         }

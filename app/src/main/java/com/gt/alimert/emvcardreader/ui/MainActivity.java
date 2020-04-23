@@ -164,14 +164,16 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
 
     private void showApplicationSelectionDialog(List<Application> applications) {
 
-        List<String> appNames = new ArrayList<>();
+        String[] appNames = new String[applications.size()];
+        int index = 0;
         for (Application application : applications) {
-            appNames.add(application.getAppLabel());
+            appNames[index] = application.getAppLabel();
+            index++;
         }
 
         runOnUiThread(() -> {
             String title = "Select One of Your Cards";
-            mAlertDialog = AppUtils.showSingleChoiceListDialog(this, title, appNames, (dialogInterface, index) -> mCtlessCardService.setSelectedApplication(index));
+            mAlertDialog = AppUtils.showSingleChoiceListDialog(this, title, appNames, "OK", (dialogInterface, i) -> mCtlessCardService.setSelectedApplication(i));
         });
     }
 

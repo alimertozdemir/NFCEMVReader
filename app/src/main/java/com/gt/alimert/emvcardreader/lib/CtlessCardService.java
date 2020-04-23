@@ -114,32 +114,12 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 byte[] command = ApduUtil.selectPpse();
                 byte[] result = mIsoDep.transceive(command);
                 byte[] responseData = evaluateResult( "SELECT PPSE", command, result);
-                byte[] aid;
+                byte[] aid = TlvUtil.getTlvByTag(responseData, TlvTagConstant.AID_TLV_TAG);
 
-                // *** FIND MULTIPLE APPLICATIONS ***//
-                List<Application> appList = TlvUtil.getApplicationList(responseData);
+                aid = getAidFromMultiApplicationCard(responseData);
 
-                int index = 0;
-                for (Application application : appList) {
-                    index++;
-                    Log.d(TAG, "AID (" + index + ")-> " + HexUtil.bytesToHexadecimal(application.getAid()));
-                    Log.d(TAG, "APP LABEL (" + index + ")-> " + application.getAppLabel());
-                    Log.d(TAG, "APP PRIORITY (" + index + ")-> " + application.getPriority());
-                }
-
-                if(appList.size() > 1) {
-
-                    if(mUserAppIndex != -1 && appList.size() > mUserAppIndex) {
-                        aid = appList.get(mUserAppIndex).getAid();
-                        mUserAppIndex = -1;
-                    } else {
-                        mResultListener.onCardSelectApplication(appList);
-                        return;
-                    }
-
-                } else {
-                    aid = appList.get(0).getAid();
-                }
+                if(aid == null)
+                    return;
 
                 if(!AidUtil.isApprovedAID(aid)) {
                     throw new CommandException("AID NOT SUPPORTED -> " + HexUtil.bytesToHexadecimal(aid));
@@ -290,6 +270,28 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
             mNfcAdapter.disableReaderMode(mContext);
         }
 
+    }
+
+    private byte[] getAidFromMultiApplicationCard(byte[] responseData) {
+
+        byte[] aid = null;
+        // *** FIND MULTIPLE APPLICATIONS ***//
+        List<Application> appList = TlvUtil.getApplicationList(responseData);
+
+        if(appList.size() > 1) {
+
+            if(mUserAppIndex != -1 && appList.size() > mUserAppIndex) {
+                aid = appList.get(mUserAppIndex).getAid();
+                mUserAppIndex = -1;
+            } else {
+                mResultListener.onCardSelectApplication(appList);
+            }
+
+        } else {
+            aid = appList.get(0).getAid();
+        }
+
+        return aid;
     }
 
     public interface ResultListener {

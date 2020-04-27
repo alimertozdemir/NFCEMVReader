@@ -12,12 +12,13 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gt.alimert.emvcardreader.R;
-import com.gt.alimert.emvcardreader.lib.CtlessCardService;
-import com.gt.alimert.emvcardreader.lib.enums.BeepType;
-import com.gt.alimert.emvcardreader.lib.model.Application;
-import com.gt.alimert.emvcardreader.lib.model.Card;
-import com.gt.alimert.emvcardreader.lib.model.LogMessage;
 import com.gt.alimert.emvcardreader.ui.util.AppUtils;
+import com.gt.alimert.emvnfclib.CtlessCardService;
+import com.gt.alimert.emvnfclib.enums.BeepType;
+import com.gt.alimert.emvnfclib.enums.TransactionType;
+import com.gt.alimert.emvnfclib.model.Card;
+import com.gt.alimert.emvnfclib.model.LogMessage;
+import com.gt.alimert.emvnfclib.model.Application;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
     @Override
     protected void onResume() {
         super.onResume();
-        mCtlessCardService.start();
+        int amount = 10000; //(int) (Math.random() * 25 + 1) * 1000;
+        mCtlessCardService.startTransaction(TransactionType.SALE, String.valueOf(amount));
     }
 
     @Override
@@ -143,13 +145,13 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
                             "Card Track2 Data : " + card.getTrack2() + "\n";
 
             if(card.getEmvData() != null && !card.getEmvData().isEmpty())
-                message += "Card EmvData : " + card.getEmvData();
+                message += "\n\nCard EmvData : \n" + card.getEmvData();
 
             mAlertDialog = AppUtils.showAlertDialog(this, title, message, "OK", "SHOW APDU LOGS", false, (dialogInterface, button) -> {
                 switch (button) {
                     case BUTTON_POSITIVE:
                     case BUTTON_NEUTRAL:
-                        mCtlessCardService.start();
+                        onResume();
                         mAlertDialog.dismiss();
                         break;
                     case BUTTON_NEGATIVE:

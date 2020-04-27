@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.gt.alimert.emvcardreader.R;
-import com.gt.alimert.emvcardreader.lib.model.LogMessage;
+import com.gt.alimert.emvnfclib.model.LogMessage;
 
 import java.util.List;
 

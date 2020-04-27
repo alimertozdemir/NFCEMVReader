@@ -2,6 +2,7 @@ package com.gt.alimert.emvcardreader.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -16,16 +17,12 @@ import com.gt.alimert.emvcardreader.ui.util.AppUtils;
 import com.gt.alimert.emvnfclib.CtlessCardService;
 import com.gt.alimert.emvnfclib.enums.BeepType;
 import com.gt.alimert.emvnfclib.enums.TransactionType;
+import com.gt.alimert.emvnfclib.model.Application;
 import com.gt.alimert.emvnfclib.model.Card;
 import com.gt.alimert.emvnfclib.model.LogMessage;
-import com.gt.alimert.emvnfclib.model.Application;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.DialogInterface.BUTTON_NEGATIVE;
-import static android.content.DialogInterface.BUTTON_NEUTRAL;
-import static android.content.DialogInterface.BUTTON_POSITIVE;
 
 public class MainActivity extends AppCompatActivity implements CtlessCardService.ResultListener {
 
@@ -149,12 +146,12 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
 
             mAlertDialog = AppUtils.showAlertDialog(this, title, message, "OK", "SHOW APDU LOGS", false, (dialogInterface, button) -> {
                 switch (button) {
-                    case BUTTON_POSITIVE:
-                    case BUTTON_NEUTRAL:
+                    case DialogInterface.BUTTON_POSITIVE:
+                    case DialogInterface.BUTTON_NEUTRAL:
                         onResume();
                         mAlertDialog.dismiss();
                         break;
-                    case BUTTON_NEGATIVE:
+                    case DialogInterface.BUTTON_NEGATIVE:
                         if(card.getLogMessages() != null && !card.getLogMessages().isEmpty())
                             openApduLogDetail(new ArrayList<>(card.getLogMessages()));
                         mAlertDialog.dismiss();

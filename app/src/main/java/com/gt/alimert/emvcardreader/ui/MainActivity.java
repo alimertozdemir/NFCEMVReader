@@ -32,8 +32,9 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
 
     private CtlessCardService mCtlessCardService;
 
-    private ProgressDialog mProgressDialog;
     private AlertDialog mAlertDialog;
+
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
     protected void onResume() {
         super.onResume();
         int amount = 10000; //(int) (Math.random() * 25 + 1) * 1000;
-        mCtlessCardService.startTransaction(TransactionType.SALE, String.valueOf(amount));
+        mCtlessCardService.startTransaction(TransactionType.SALES, String.valueOf(amount));
     }
 
     @Override
@@ -115,7 +116,8 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
 
     private void showProgressDialog() {
         dismissAlertDialog();
-        runOnUiThread(()-> mProgressDialog = AppUtils.showLoadingDialog(this, "Reading Card", "Please do not remove your card while reading..."));
+        runOnUiThread(()-> mProgressDialog = AppUtils.showLoading(this));
+        //runOnUiThread(()-> mProgressDialog = AppUtils.showLoadingDialog(this, "Reading Card", "Please do not remove your card while reading..."));
     }
 
     private void dismissProgressDialog() {

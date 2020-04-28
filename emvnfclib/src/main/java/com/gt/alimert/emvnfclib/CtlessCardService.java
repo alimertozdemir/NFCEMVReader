@@ -9,6 +9,9 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gt.alimert.emvnfclib.data.model.TransactionRequest;
+import com.gt.alimert.emvnfclib.data.remote.ApiService;
+import com.gt.alimert.emvnfclib.data.remote.NetworkManager;
 import com.gt.alimert.emvnfclib.enums.CardType;
 import com.gt.alimert.emvnfclib.enums.TransactionType;
 import com.gt.alimert.emvnfclib.exception.CommandException;
@@ -37,7 +40,13 @@ import com.gt.alimert.emvnfclib.util.TlvUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author AliMertOzdemir
@@ -71,6 +80,8 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
     private int mUserAppIndex = -1;
     private Card mCard;
     private EmvParam mEmvParam;
+    private String mEndpoint = "https://gbmposapp-d.garanti.com.tr/api/";
+    private ApiService mApiService;
 
     private CtlessCardService() {}
 
@@ -93,9 +104,18 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
             mNfcAdapter.enableReaderMode(mContext, this, READER_FLAGS, null);
         }
 
+        if(mApiService == null) {
+            NetworkManager networkManager = new NetworkManager(mEndpoint, CONNECT_TIMEOUT);
+            mApiService = networkManager.init();
+        }
+
         this.mAmount = amount;
         this.mTransactionType = transactionType;
 
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.mEndpoint = endpoint;
     }
 
     public void setTimeout(int timeoutMillis) {
@@ -257,9 +277,21 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 mCard.setEmvData(HexUtil.bytesToHexadecimal(emvData));
                 Log.d(TAG, "EMVDATA RESULT HEX --> " + HexUtil.bytesToHexadecimal(emvData));
 
-                mResultListener.onCardReadSuccess(mCard);
-                mIsoDep.close();
-                mNfcAdapter.disableReaderMode(mContext);
+                Disposable disposable = mApiService.startTransaction(getTransactionRequest())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(response -> {
+                            if("00".equals(response.getResponseCode()))
+                                mResultListener.onCardReadSuccess(mCard);
+                            else
+                                mResultListener.onCardReadFail(response.getGenericField().get("serverResponse"));
+                            mIsoDep.close();
+                            mNfcAdapter.disableReaderMode(mContext);
+                        }, throwable -> {
+                            mResultListener.onCardReadFail(throwable.getLocalizedMessage());
+                            mIsoDep.close();
+                            mNfcAdapter.disableReaderMode(mContext);
+                        });
 
             } catch (CommandException e) {
                 Log.d(TAG, "COMMAND EXCEPTION -> " + e.getLocalizedMessage());
@@ -387,6 +419,28 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         }
 
         return aid;
+    }
+
+    private TransactionRequest getTransactionRequest() {
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setCardBrand(mCard.getCardType().getCardBrand());
+        transactionRequest.setCardType("F");
+        transactionRequest.setEmvData(mCard.getEmvData());
+        transactionRequest.setPan(mCard.getPan());
+        transactionRequest.setExpiryDate(mCard.getExpireDate());
+        transactionRequest.setTrack2Data(mCard.getTrack2());
+        transactionRequest.setTransactionType(TransactionType.SALES.name());
+        transactionRequest.setAmount(HexUtil.bytesToHexadecimal(mEmvParam.getAmountAuthorized()));
+        transactionRequest.setCurrencyCode("949");
+        transactionRequest.setTerminalId("30691802");
+        transactionRequest.setMerchantId("000000000982066");
+        Map<String, String> genericField = new HashMap<>();
+        genericField.put("orderId", "");
+        genericField.put("ipAddress", "192.168.1.101");
+        genericField.put("terminalId", "30691802");
+        genericField.put("X-MPOS-Request-Header", "{\"appVersion\":1011,\"deviceId\":\"498EA0D040769BB4FB9BE73CE9E32A4C654C82C17515D5DF91EF5240BF51160F\",\"requestToken\":0,\"sessionId\":\"f4e4a57c-f876-4367-af15-f13de32120c5\",\"terminalNum\":30691802,\"timestamp\":\"1587810936\",\"userOpaqueId\":\"R2RyR043bXN2cWdnYjRORnN3d3lWdz09\"}");
+        transactionRequest.setGenericField(genericField);
+        return transactionRequest;
     }
 
     public interface ResultListener {

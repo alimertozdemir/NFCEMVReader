@@ -21,16 +21,13 @@ public final class CardUtil {
         Card card = new Card();
 
         String track2Data = HexUtil.bytesToHexadecimal(track2);
-        String cardNumber = "", expireDate = "", service = "";
+        String cardNumber = "", expireDate = "";
 
         if(track2Data != null) {
             Matcher matcher = TRACK2_EQUIVALENT_PATTERN.matcher(track2Data);
             if(matcher.find()) {
                 cardNumber = matcher.group(1);
                 expireDate = matcher.group(2);
-                if(expireDate != null) {
-                    expireDate = expireDate.substring(2, 4) + expireDate.substring(0, 2);
-                }
             }
         }
 

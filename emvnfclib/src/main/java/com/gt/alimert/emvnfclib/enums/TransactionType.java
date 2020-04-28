@@ -8,7 +8,7 @@ package com.gt.alimert.emvnfclib.enums;
  */
 public enum TransactionType {
 
-    SALE("00"), VOID("34"), REFUND("20"), SEARCH("40");
+    SALES("00"), VOID("34"), REFUND("20"), SEARCH("40");
 
     private String code;
 

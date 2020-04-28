@@ -5,14 +5,30 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.gt.alimert.emvcardreader.R;
 
 public final class AppUtils {
 
     private AppUtils() {
         // This utility class is not publicly instantiable
+    }
+
+    public static ProgressDialog showLoading(Context context) {
+        ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.show();
+        if (progressDialog.getWindow() != null) {
+            progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        return progressDialog;
     }
 
     public static ProgressDialog showLoadingDialog(Context context, String title, String message) {

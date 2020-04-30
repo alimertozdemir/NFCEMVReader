@@ -45,10 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-
 /**
  * @author AliMertOzdemir
  * @class CtlessCardService
@@ -291,9 +287,9 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 mCard.setEmvData(HexUtil.bytesToHexadecimal(emvData));
                 Log.d(TAG, "EMVDATA RESULT HEX --> " + HexUtil.bytesToHexadecimal(emvData));
 
-                //mResultListener.onCardReadSuccess(mCard);
+                mResultListener.onCardReadSuccess(mCard);
 
-                Disposable disposable = mApiService.startTransaction(getTransactionRequest())
+                /*Disposable disposable = mApiService.startTransaction(getTransactionRequest())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(response -> {
@@ -307,7 +303,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                             mResultListener.onCardReadFail(throwable.getLocalizedMessage());
                             mIsoDep.close();
                             mNfcAdapter.disableReaderMode(mContext);
-                        });
+                        });*/
 
             } catch (CommandException e) {
                 Log.d(TAG, "COMMAND EXCEPTION -> " + e.getLocalizedMessage());

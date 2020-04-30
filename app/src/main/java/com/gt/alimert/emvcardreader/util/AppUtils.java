@@ -1,4 +1,4 @@
-package com.gt.alimert.emvcardreader.ui.util;
+package com.gt.alimert.emvcardreader.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,9 +21,8 @@ public final class AppUtils {
     public static ProgressDialog showLoading(Context context) {
         ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.show();
-        if (progressDialog.getWindow() != null) {
+        if (progressDialog.getWindow() != null)
             progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
         progressDialog.setContentView(R.layout.progress_dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(false);

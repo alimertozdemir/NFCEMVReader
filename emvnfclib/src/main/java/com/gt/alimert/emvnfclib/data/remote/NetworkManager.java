@@ -1,10 +1,13 @@
 package com.gt.alimert.emvnfclib.data.remote;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.gt.alimert.emvnfclib.BuildConfig;
 import com.gt.alimert.emvnfclib.data.model.interceptor.RequestResponseInterceptor;
+import com.readystatesoftware.chuck.ChuckInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +29,11 @@ import static android.content.ContentValues.TAG;
  */
 public class NetworkManager {
 
+    private Context mContext;
     private Retrofit mRetrofit;
 
-    public NetworkManager(String endpointUrl, int timeout) {
+    public NetworkManager(Context context, String endpointUrl, int timeout) {
+        this.mContext = context;
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(endpointUrl)
                 .addConverterFactory(GsonConverterFactory.create(initGson()))
@@ -51,7 +56,10 @@ public class NetworkManager {
     private OkHttpClient initOkHttpClient(int timeout) {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.addInterceptor(initRequestResponseInterceptor());
-        httpClientBuilder.addInterceptor(initHttpLoggingInterceptor());
+        if(BuildConfig.DEBUG) {
+            httpClientBuilder.addInterceptor(initHttpLoggingInterceptor());
+            httpClientBuilder.addInterceptor(initChuckInterceptor());
+        }
         httpClientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
         httpClientBuilder.callTimeout(timeout, TimeUnit.MILLISECONDS);
         return httpClientBuilder.build();
@@ -67,5 +75,9 @@ public class NetworkManager {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message -> Log.d(TAG, message));
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         return loggingInterceptor;
+    }
+
+    private ChuckInterceptor initChuckInterceptor() {
+        return new ChuckInterceptor(mContext);
     }
 }

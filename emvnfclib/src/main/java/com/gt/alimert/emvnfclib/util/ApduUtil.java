@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 /**
  * @author AliMertOzdemir
@@ -243,12 +244,59 @@ public final class ApduUtil {
     }
 
     @Nullable
-    public static byte[] verifyPin(byte[] pin) {
+    public static byte[] getChallange() {
         // Returning result
         byte[] result = null;
         // - Returning result
 
-        pin = new byte[] { (byte)0x24, (byte)0x12, (byte)0x34, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
+        ByteArrayOutputStream byteArrayOutputStream = null;
+        try {
+            byteArrayOutputStream = new ByteArrayOutputStream();
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+
+        if (byteArrayOutputStream != null) {
+            try {
+
+                byteArrayOutputStream.write(TlvTagConstant.GET_CHALLANGE);
+
+                byteArrayOutputStream.write(new byte[]{
+                        (byte) 0x00, // P1
+                        (byte) 0x00  // P2
+                        // Lc not present
+                });
+
+                // Data not present
+
+                byteArrayOutputStream.write(new byte[]{
+                        (byte) 0x00 // Le
+                });
+
+                byteArrayOutputStream.close();
+
+                result = byteArrayOutputStream.toByteArray();
+
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
+        }
+
+        return result;
+    }
+
+    @Nullable
+    public static byte[] verifyPin(byte[] pin) {
+        return verifyPin(pin, null, false);
+    }
+
+    @Nullable
+    public static byte[] verifyPin(byte[] pin, byte[]unNumber, boolean isEncrypted) {
+        // Returning result
+        byte[] result = null;
+        // - Returning result
+
+        //pin = new byte[] { (byte)0x24, (byte)0x12, (byte)0x34, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
 
         //00 20 00 80 08 24 12 34 FF FF FF FF FF
 
@@ -264,13 +312,30 @@ public final class ApduUtil {
 
                 byteArrayOutputStream.write(TlvTagConstant.VERIFY);
 
-                byteArrayOutputStream.write(new byte[]{
-                        (byte) 0x00, // P1
-                        (byte) 0x80, // P2
-                        (byte) pin.length // Lc
-                });
+                if(isEncrypted) {
 
-                byteArrayOutputStream.write(pin); // Pin
+                    byteArrayOutputStream.write(new byte[]{
+                            (byte) 0x00, // P1
+                            (byte) 0x88, // P2
+                            (byte) pin.length // Lc
+                    });
+                } else {
+
+                    byteArrayOutputStream.write(new byte[]{
+                            (byte) 0x00, // P1
+                            (byte) 0x80, // P2
+                            (byte) 0x08,  // Lc
+                            (byte) (0x20 | pin.length * 2) // Control Field
+                    });
+
+                    byteArrayOutputStream.write(pin); // Pin
+
+                    byte[] pinFiller = new byte[7 - pin.length];
+
+                    Arrays.fill(pinFiller, 0, pinFiller.length, (byte) 0xFF); //Filler bytes
+
+                    byteArrayOutputStream.write(pinFiller);
+                }
 
                 byteArrayOutputStream.close();
 

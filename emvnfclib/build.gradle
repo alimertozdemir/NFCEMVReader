@@ -45,6 +45,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
 
+    // chuck
+    implementation 'com.readystatesoftware.chuck:library:1.1.0'
+
     // dependency injection
     // dagger
     implementation 'com.google.dagger:dagger:2.24'

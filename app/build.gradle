@@ -33,5 +33,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(':emvnfclib')
 
-    //implementation 'com.github.devnied.emvnfccard:library:3.0.0'
 }

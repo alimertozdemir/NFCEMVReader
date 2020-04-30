@@ -48,6 +48,9 @@ public final class TlvTagConstant {
     }, READ_RECORD = {
             (byte) 0x00,
             (byte) 0xB2
+    }, GET_CHALLANGE = {
+            (byte) 0x00,
+            (byte) 0x84
     }, VERIFY = {
             (byte) 0x00,
             (byte) 0x20

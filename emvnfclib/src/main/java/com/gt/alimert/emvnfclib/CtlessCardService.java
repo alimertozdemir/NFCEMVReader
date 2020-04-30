@@ -9,6 +9,7 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gt.alimert.emvnfclib.data.model.Configuration;
 import com.gt.alimert.emvnfclib.data.model.TransactionRequest;
 import com.gt.alimert.emvnfclib.data.remote.ApiService;
 import com.gt.alimert.emvnfclib.data.remote.NetworkManager;
@@ -71,8 +72,6 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                     NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
 
     private static final int SW_NO_ERROR = 0x9000;
-    private int READ_TIMEOUT = 3000;
-    private int CONNECT_TIMEOUT = 30000;
     private String mAmount = "10000";
     private TransactionType mTransactionType;
     private CountDownTimer mTimer;
@@ -80,32 +79,43 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
     private int mUserAppIndex = -1;
     private Card mCard;
     private EmvParam mEmvParam;
-    private String mEndpoint = "https://gbmposapp-d.garanti.com.tr/api/";
     private ApiService mApiService;
+    private Configuration mConfiguration;
 
     private CtlessCardService() {}
 
-    public CtlessCardService(Activity context, ResultListener resultListener) {
-        this.mContext = context;
-        this.mResultListener = resultListener;
+    public CtlessCardService(Configuration configuration) {
+        this.mConfiguration = configuration;
+
+        if(mConfiguration.getHostUrl() == null || mConfiguration.getHostUrl().isEmpty()) {
+            mResultListener.onConfigurationError("Set host (endpoint) url");
+        } else if(mConfiguration.getAcquirerId() == 0) {
+            mResultListener.onConfigurationError("Set aqcuirerId");
+        }
     }
 
-    public void startTransaction(TransactionType transactionType, String amount) {
+    public void startTransaction(Activity context, TransactionType transactionType, String amount, ResultListener resultListener) {
+        this.mContext = context;
+        this.mResultListener = resultListener;
+
         mNfcAdapter = NfcAdapter.getDefaultAdapter(mContext);
         // Check if the device has NFC
         if (mNfcAdapter == null) {
             Toast.makeText(mContext, "NFC not supported", Toast.LENGTH_LONG).show();
+            mResultListener.onConfigurationError("NFC not supported");
+            return;
         }
         // Check if NFC is enabled on device
-        if (!mNfcAdapter.isEnabled()) {
-            Toast.makeText(mContext, "Enable NFC before using the app",
-                    Toast.LENGTH_LONG).show();
+        else if (!mNfcAdapter.isEnabled()) {
+            Toast.makeText(mContext, "Enable NFC before using the app", Toast.LENGTH_LONG).show();
+            mResultListener.onConfigurationError("Enable NFC before using the SDK");
+            return;
         } else {
             mNfcAdapter.enableReaderMode(mContext, this, READER_FLAGS, null);
         }
 
         if(mApiService == null) {
-            NetworkManager networkManager = new NetworkManager(mEndpoint, CONNECT_TIMEOUT);
+            NetworkManager networkManager = new NetworkManager(mContext, mConfiguration.getHostUrl(), mConfiguration.getConnectTimeout());
             mApiService = networkManager.init();
         }
 
@@ -114,12 +124,8 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
 
     }
 
-    public void setEndpoint(String endpoint) {
-        this.mEndpoint = endpoint;
-    }
-
-    public void setTimeout(int timeoutMillis) {
-        CONNECT_TIMEOUT = timeoutMillis;
+    public void setConfiguration(Configuration configuration) {
+        this.mConfiguration = configuration;
     }
 
     public void setSelectedApplication(int index) {
@@ -142,20 +148,23 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         if(mIsoDep != null && mIsoDep.getTag() != null) {
             Log.d(TAG, "ISO-DEP - Compatible NFC tag discovered: " + mIsoDep.getTag());
 
-            mResultListener.onCardDetect();
-
             try {
                 mIsoDep.connect();
-                mIsoDep.setTimeout(READ_TIMEOUT);
+                mIsoDep.setTimeout(mConfiguration.getReadTimeout());
 
                 byte[] amount = HexUtil.addLeftSpaceZeros(mAmount, 12);
                 byte[] tranType = HexUtil.hexadecimalToBytes(mTransactionType.getCode());
-                mAmount = "0";
+
+                if(!mIsoDep.isConnected()) {
+                    throw new Exception("NOT CONNECTED");
+                }
 
                 byte[] command = ApduUtil.selectPpse();
                 byte[] result = mIsoDep.transceive(command);
                 byte[] responseData = evaluateResult( "SELECT PPSE", command, result);
                 byte[] aid = TlvUtil.getTlvByTag(responseData, TlvTagConstant.AID_TLV_TAG);
+
+                mResultListener.onCardDetect();
 
                 if(!AidUtil.isApprovedAID(aid)) {
                     throw new CommandException("AID NOT SUPPORTED -> " + HexUtil.bytesToHexadecimal(aid));
@@ -236,7 +245,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 if(aipObject.isCardholderVerificationSupported()) {
                     if(cvmList != null) {
                         CVMList cvmListObject = new CVMList(cvmList);
-                        Log.d(TAG, "CVMList --> ");
+                        Log.d(TAG, "CVMList --> " + HexUtil.bytesToHexadecimal(cvmList));
                         for (CVRule rule: cvmListObject.getRules()) {
                             Log.d(TAG, rule.getRuleString());
                         }
@@ -258,7 +267,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                     CardType cardType = AidUtil.getCardBrandByAID(aid);
                     mCard.setCardType(cardType);
                 } else {
-                    throw new Exception("CALL YOUR BANK");
+                    throw new Exception("Card info is missing.");
                 }
 
                 command = ApduUtil.getReadTlvData(TlvTagConstant.ISSUER_APPLICATION_DATA_TLV_TAG);
@@ -273,9 +282,16 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
                 result = mIsoDep.transceive(command);
                 evaluateResult("APPLICATION TRANSACTION COUNTER", command, result, true);
 
+                if(!mConfiguration.isEmvSupport()) {
+                    mResultListener.onCardReadSuccess(mCard);
+                    return;
+                }
+
                 byte[] emvData = EmvUtil.generateEmvData(mEmvParam);
                 mCard.setEmvData(HexUtil.bytesToHexadecimal(emvData));
                 Log.d(TAG, "EMVDATA RESULT HEX --> " + HexUtil.bytesToHexadecimal(emvData));
+
+                //mResultListener.onCardReadSuccess(mCard);
 
                 Disposable disposable = mApiService.startTransaction(getTransactionRequest())
                         .subscribeOn(Schedulers.io())
@@ -380,7 +396,14 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
         result = mIsoDep.transceive(command);
         evaluateResult("PAYWAVE LOG FORMAT", command, result);
 
-        command = ApduUtil.verifyPin(null);
+        command = ApduUtil.getChallange();
+        result = mIsoDep.transceive(command);
+        evaluateResult("GET CHALLENGE", command, result);
+
+        byte[] unNumber = Arrays.copyOfRange(result, 0, 8); //new ApduResponse(result).getData();
+
+        byte[] pin = HexUtil.hexadecimalToBytes("1234");
+        command = ApduUtil.verifyPin(pin);
         result = mIsoDep.transceive(command);
         evaluateResult("VERIFY PIN", command, result);
 
@@ -444,6 +467,7 @@ public class CtlessCardService implements NfcAdapter.ReaderCallback {
     }
 
     public interface ResultListener {
+        void onConfigurationError(String error);
         void onCardDetect();
         void onCardReadSuccess(Card card);
         void onCardReadFail(String error);

@@ -2,6 +2,7 @@ package com.gt.alimert.emvcardreader.ui;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -9,12 +10,15 @@ import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gt.alimert.emvcardreader.R;
-import com.gt.alimert.emvcardreader.ui.util.AppUtils;
+import com.gt.alimert.emvcardreader.model.TransactionAmount;
+import com.gt.alimert.emvcardreader.util.AppUtils;
 import com.gt.alimert.emvnfclib.CtlessCardService;
+import com.gt.alimert.emvnfclib.data.model.Configuration;
 import com.gt.alimert.emvnfclib.enums.BeepType;
 import com.gt.alimert.emvnfclib.enums.TransactionType;
 import com.gt.alimert.emvnfclib.model.Application;
@@ -24,9 +28,9 @@ import com.gt.alimert.emvnfclib.model.LogMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements CtlessCardService.ResultListener {
+public class ReadCardActivity extends AppCompatActivity implements CtlessCardService.ResultListener {
 
-    private String TAG = MainActivity.class.getName();
+    private String TAG = ReadCardActivity.class.getName();
 
     private LinearLayout llContainer;
 
@@ -36,21 +40,52 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
 
     private ProgressDialog mProgressDialog;
 
+    private TextView tvAmount;
+
+    private String mAmount = "";
+
+    public static Intent newIntent(Context context) {
+        return new Intent(context, ReadCardActivity.class);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_read_card);
 
         llContainer = findViewById(R.id.ctless_container);
+        tvAmount = findViewById(R.id.tv_amount);
 
-        mCtlessCardService = new CtlessCardService(this, this);
+        String hostUrl = "https://gbmposapp-d.garanti.com.tr/api/";
+        Configuration configuration = new Configuration.Builder(hostUrl, 700070)
+                .setConnectTimeout(30000)
+                .setReadTimeout(3000)
+                .setEmvSupport(true)
+                .build();
+        mCtlessCardService = new CtlessCardService(configuration);
+
+        TransactionAmount transactionAmount = getIntent().getParcelableExtra("amount");
+        if(transactionAmount != null) {
+            String amount = transactionAmount.getAmount();
+            mAmount = amount.replaceAll("[$,.]", "");
+            tvAmount.setText(amount.concat(" ₺"));
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        int amount = 10000; //(int) (Math.random() * 25 + 1) * 1000;
-        mCtlessCardService.startTransaction(TransactionType.SALES, String.valueOf(amount));
+
+        String amount = "10000";
+        if(mAmount != null)
+            amount = mAmount;
+        mCtlessCardService.startTransaction(this, TransactionType.SALES, amount, this);
+    }
+
+    @Override
+    public void onConfigurationError(String error) {
+        Log.d(TAG, "ON CONFIGURATION ERROR");
+        showAlertDialog("ERROR", error);
     }
 
     @Override
@@ -117,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
     private void showProgressDialog() {
         dismissAlertDialog();
         runOnUiThread(()-> mProgressDialog = AppUtils.showLoading(this));
-        //runOnUiThread(()-> mProgressDialog = AppUtils.showLoadingDialog(this, "Reading Card", "Please do not remove your card while reading..."));
     }
 
     private void dismissProgressDialog() {
@@ -129,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
         runOnUiThread(() -> {
             mAlertDialog = AppUtils.showAlertDialog(this, title, message, "OK", "SHOW APDU LOGS", false, (dialogInterface, button) -> {
                 mAlertDialog.dismiss();
+                this.onResume();
             });
         });
     }
@@ -150,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements CtlessCardService
                 switch (button) {
                     case DialogInterface.BUTTON_POSITIVE:
                     case DialogInterface.BUTTON_NEUTRAL:
-                        onResume();
                         mAlertDialog.dismiss();
+                        finish();
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         if(card.getLogMessages() != null && !card.getLogMessages().isEmpty())

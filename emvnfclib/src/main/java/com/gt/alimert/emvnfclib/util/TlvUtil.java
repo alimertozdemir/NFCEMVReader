@@ -21,6 +21,7 @@ import java.util.List;
 public final class TlvUtil {
 
     //http://khuong.uk/Papers/EMVThesis.pdf
+    //https://stackoverflow.com/questions/58299515/read-emv-data-from-mastercard-visa-debit-credit-card (APDU Comms)
     //https://www.blackhat.com/presentations/bh-usa-08/Buetler/BH_US_08_Buetler_SmartCard_APDU_Analysis_V1_0_2.pdf
     //https://stackoverflow.com/questions/58299515/read-emv-data-from-mastercard-visa-debit-credit-card
     //http://www.cs.ru.nl/~joeri/talks/rfidsec2015.pdf (Security)

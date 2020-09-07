@@ -6,7 +6,6 @@ import java.math.BigDecimal;
  * @author AliMertOzdemir
  * @class FormatUtils
  * @created 30.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class FormatUtils {
 

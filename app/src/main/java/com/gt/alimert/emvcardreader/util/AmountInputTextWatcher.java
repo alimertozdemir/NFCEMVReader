@@ -10,7 +10,6 @@ import java.lang.ref.WeakReference;
  * @author AliMertOzdemir
  * @class AmountInputTextWatcher
  * @created 29.01.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class AmountInputTextWatcher implements TextWatcher {
 

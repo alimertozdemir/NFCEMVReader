@@ -25,7 +25,6 @@ import static android.content.ContentValues.TAG;
  * @author AliMertOzdemir
  * @class NetworkManager
  * @created 28.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class NetworkManager {
 

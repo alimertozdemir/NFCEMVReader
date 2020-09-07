@@ -9,7 +9,6 @@ import java.util.List;
  * @author AliMertOzdemir
  * @class CVMList
  * @created 27.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class CVMList {
     private LinkedList<CVRule> cvRules = new LinkedList<CVRule>();

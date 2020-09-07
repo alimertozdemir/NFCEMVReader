@@ -6,7 +6,6 @@ import java.util.Map;
  * @author AliMertOzdemir
  * @class TransactionRequest
  * @created 28.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class TransactionRequest {
 

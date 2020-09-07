@@ -4,7 +4,6 @@ package com.gt.alimert.emvnfclib.util;
  * @author AliMertOzdemir
  * @class TlvTagConstant
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class TlvTagConstant {
 

@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
  * @author AliMertOzdemir
  * @class CardUtil
  * @created 21.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class CardUtil {
 

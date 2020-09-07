@@ -9,7 +9,6 @@ import com.gt.alimert.emvnfclib.enums.TransactionType;
  * @author AliMertOzdemir
  * @class TransactionAmount
  * @created 30.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class TransactionAmount implements Parcelable {
 

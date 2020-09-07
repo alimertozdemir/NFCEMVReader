@@ -6,7 +6,6 @@ import java.security.AccessControlException;
  * @author AliMertOzdemir
  * @class ApduResponse
  * @created 16.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class ApduResponse {
 

@@ -4,7 +4,6 @@ package com.gt.alimert.emvnfclib.data.model;
  * @author AliMertOzdemir
  * @class Configuration
  * @created 30.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class Configuration {
 

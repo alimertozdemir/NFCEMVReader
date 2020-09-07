@@ -4,7 +4,6 @@ package com.gt.alimert.emvnfclib.enums;
  * @author AliMertOzdemir
  * @class TransactionType
  * @created 25.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public enum TransactionType {
 

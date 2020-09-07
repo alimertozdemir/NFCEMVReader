@@ -19,7 +19,6 @@ import java.util.Locale;
  * @author AliMertOzdemir
  * @class DolUtil
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class DolUtil {
 

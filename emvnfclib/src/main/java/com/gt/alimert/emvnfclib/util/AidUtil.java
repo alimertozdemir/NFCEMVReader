@@ -8,7 +8,6 @@ import java.util.Arrays;
  * @author AliMertOzdemir
  * @class AidUtil
  * @created 16.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class AidUtil {
 

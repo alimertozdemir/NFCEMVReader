@@ -11,7 +11,6 @@ import retrofit2.http.POST;
  * @author AliMertOzdemir
  * @class ApiService
  * @created 28.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public interface ApiService {
 

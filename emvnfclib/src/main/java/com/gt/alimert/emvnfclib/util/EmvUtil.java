@@ -15,7 +15,6 @@ import java.util.Locale;
  * @author AliMertOzdemir
  * @class EmvUtil
  * @created 23.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class EmvUtil {
 

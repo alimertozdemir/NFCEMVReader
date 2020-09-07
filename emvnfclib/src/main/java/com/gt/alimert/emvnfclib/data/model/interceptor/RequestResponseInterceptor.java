@@ -11,7 +11,6 @@ import okhttp3.Response;
  * @author AliMertOzdemir
  * @class RequestResponseInterceptor
  * @created 28.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class RequestResponseInterceptor implements Interceptor {
 

@@ -4,7 +4,6 @@ package com.gt.alimert.emvnfclib.model;
  * @author AliMertOzdemir
  * @class Application
  * @created 21.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class Application {
 

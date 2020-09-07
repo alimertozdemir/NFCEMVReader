@@ -6,7 +6,6 @@ import java.util.BitSet;
  * @author AliMertOzdemir
  * @class TvrObject
  * @created 27.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class TvrObject {
 

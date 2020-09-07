@@ -6,7 +6,6 @@ import com.gt.alimert.emvnfclib.util.HexUtil;
  * @author AliMertOzdemir
  * @class CVRule
  * @created 27.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class CVRule {
 

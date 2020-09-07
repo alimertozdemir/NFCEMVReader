@@ -9,7 +9,6 @@ import android.util.Log;
  * @author AliMertOzdemir
  * @class DeviceUtil
  * @created 27.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class DeviceUtil {
 

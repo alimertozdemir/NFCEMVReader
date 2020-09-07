@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
  * @author AliMertOzdemir
  * @class HexUtil
  * @created 16.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class HexUtil {
 

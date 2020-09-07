@@ -19,7 +19,6 @@ import com.gt.alimert.emvnfclib.enums.TransactionType;
  * @author AliMertOzdemir
  * @class AmountActivity
  * @created 30.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class AmountActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
 

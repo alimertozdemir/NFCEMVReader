@@ -4,7 +4,6 @@ package com.gt.alimert.emvnfclib.model;
  * @author AliMertOzdemir
  * @class TlvObject
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class TlvObject {
 

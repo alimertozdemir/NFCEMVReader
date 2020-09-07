@@ -16,7 +16,6 @@ import java.util.List;
  * @author AliMertOzdemir
  * @class TlvUtil
  * @created 16.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class TlvUtil {
 

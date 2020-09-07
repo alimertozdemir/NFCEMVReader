@@ -4,7 +4,6 @@ package com.gt.alimert.emvcardreader.lib.model;
  * @author AliMertOzdemir
  * @class AflObject
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class AflObject {
 

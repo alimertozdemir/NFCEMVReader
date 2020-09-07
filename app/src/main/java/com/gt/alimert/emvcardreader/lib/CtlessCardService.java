@@ -34,7 +34,6 @@ import java.util.List;
  * @author AliMertOzdemir
  * @class CtlessCardService
  * @created 20.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class CtlessCardService implements NfcAdapter.ReaderCallback {
 

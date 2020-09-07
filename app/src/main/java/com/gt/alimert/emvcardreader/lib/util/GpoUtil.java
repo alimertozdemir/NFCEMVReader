@@ -19,7 +19,6 @@ import java.util.Locale;
  * @author AliMertOzdemir
  * @class GpoUtil
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class GpoUtil {
 

@@ -6,7 +6,6 @@ import android.content.Context;
  * @author AliMertOzdemir
  * @class SharedPrefUtil
  * @created 21.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class SharedPrefUtil {
 

@@ -7,7 +7,6 @@ import android.os.Parcelable;
  * @author AliMertOzdemir
  * @class LogMessage
  * @created 21.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class LogMessage implements Parcelable {
 

@@ -15,7 +15,6 @@ import java.util.List;
  * @author AliMertOzdemir
  * @class AflUtil
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class AflUtil {
 

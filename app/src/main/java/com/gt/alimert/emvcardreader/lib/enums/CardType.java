@@ -4,7 +4,6 @@ package com.gt.alimert.emvcardreader.lib.enums;
  * @author AliMertOzdemir
  * @class CardType
  * @created 21.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public enum CardType {
 

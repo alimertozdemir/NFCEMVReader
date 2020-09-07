@@ -4,7 +4,6 @@ package com.gt.alimert.emvcardreader.lib.model;
  * @author AliMertOzdemir
  * @class TlvObject
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class TlvObject {
 

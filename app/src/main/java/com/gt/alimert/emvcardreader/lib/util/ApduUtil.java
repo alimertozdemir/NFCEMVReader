@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream;
  * @author AliMertOzdemir
  * @class ApduUtil
  * @created 16.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public final class ApduUtil {
 

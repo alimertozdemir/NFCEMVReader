@@ -4,7 +4,6 @@ package com.gt.alimert.emvcardreader.lib.util;
  * @author AliMertOzdemir
  * @class TlvTagConstant
  * @created 17.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class TlvTagConstant {
 

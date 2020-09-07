@@ -8,7 +8,6 @@ import java.util.List;
  * @author AliMertOzdemir
  * @class Card
  * @created 21.04.2020
- * @copyright © GARANTI TEKNOLOJI
  */
 public class Card {
 
